@@ -1,0 +1,17 @@
+INTRODUCTION:
+  PYPDAS is a python implementation of primal-dual active-set methods with inexact subspace minimization techniques. The problem temporary under consideration is in the form of:
+            min  x'Hx + c'x
+            st    x <= u
+where H is a positive definite matrix.
+
+REQUIRMENT:
+  1. Python 2.7;
+  2. Numpy, Scipy;
+  (In Sage with version 5.8 or later, all packages listed above have already been installed.)
+
+FEATURES:
+  1. Applied multiple simultaneous update of the active-set estimate;
+  2. Implemented inexact subspace minimization which could potentially undercut the cost in solving the subproblems;
+
+CONTACT:
+zhh210@lehigh.edu
