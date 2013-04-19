@@ -1,0 +1,4 @@
+# Ignore certain types of files
+*.pyc
+*~
+*.mat
