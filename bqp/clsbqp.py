@@ -48,17 +48,23 @@ class BQP:
         else:
             self.z = z0          # Initial point (optional)
 
+
+    def fix(self):
+        # Fix active primal variables (x[A])
+        self.x[self.A] = self.u[self.A]
+        # Fix inactive dual variables (z[I])
+        self.z[self.I] = 0
+
             
     # Subspace minimization (exact)
     def ssm(self, A = None):
         if A is None:
             A = self.A
 
-        # Fix active primal variables (x[A])
-        self.x[A] = self.u[A]
-        I = np.setdiff1d(range(self.n),A)
-        # Fix inactive dual variables (z[I])
-        self.z[I] = 0
+        I = self.I
+        # Fix x[A] and z[I]
+        self.fix()
+
 
         # Solve inactive primal variables (x[I])
         if len(I) == 0:
