@@ -28,7 +28,7 @@ class BQP:
 
         self.n = len(self.c)     # Problem size
         self.k = 0               # Iteration counter
-
+        self.state = 'Init'      # Problem state
         # Preprocess optional parameters
         if A is None:
             # Randomized initial A
