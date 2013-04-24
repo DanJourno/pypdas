@@ -7,7 +7,7 @@ Usage       : to be filled
 import numpy as np
 from scipy import sparse as sp
 from scipy.io import loadmat
-from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import spsolve,cg
 from numpy.linalg import solve, norm
 from numpy.random import randint, randn
 

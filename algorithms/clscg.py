@@ -44,7 +44,7 @@ class CG:
             self.p = -r1 + beta*self.p
             self.r = r1
             self.k += 1
-            if norm(self.r) < tol:
+            if norm(self.r,np.inf) < tol:
                 break
 
         # Compute active dual variables (z[A])
