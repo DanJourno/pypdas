@@ -62,12 +62,12 @@ class CG:
         else:
             count = self.k
 
-        print '{0:3d} {1:4d} {2:4d}   {3:+.3e}  {4:.3e}  {5:4d}'.format(self.bqp.k,len(self.bqp.A),self.bqp.n-len(self.bqp.A),self.bqp.obj(),float(self.bqp.kkt_error()),count )
+        print '{0:3d} {1:4d} {2:4d}   {3:+.3e}  {4:.3e}    {5:4d}     {6:.3e}'.format(self.bqp.k,len(self.bqp.A),self.bqp.n-len(self.bqp.A),self.bqp.obj(),float(self.bqp.kkt_error()),count,norm(self.r,np.inf) )
 
     # Print title
     def print_title(self,rep = None):
         if rep is None:
             rep = 60
         print '='*rep
-        print 'Iter |A|   |I|     obj        res       CG-iter'
+        print 'Iter |A|   |I|     obj        res       CG-iter    CG-res'
         print '='*rep
