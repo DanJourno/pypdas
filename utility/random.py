@@ -8,7 +8,7 @@ def sprandsym(n,den,rc,mtype = 1,dataname = 'tmp'):
 	curdir = os.path.abspath(__file__).replace('random.pyc','')
 	curdir = curdir.replace('random.py','')
 	print curdir
-	st = 'matlab -nodisplay -r '+'"addpath '+curdir+';randompd('+ str(n) +','+ str(den)+','+str(rc)+','+str(mtype)+','+"'" +str(dataname)+"'"+');exit;"'
+	st = 'matlab -nodisplay -r '+'"addpath '+curdir+';random_bqp('+ str(n) +','+ str(den)+','+str(rc)+','+str(mtype)+','+"'" +str(dataname)+"'"+');exit;"'
 	print st
 	os.system(st)
 

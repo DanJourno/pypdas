@@ -22,7 +22,7 @@ class BQP:
         else:
             # Load Matlab data
             mlb = loadmat(filename)
-            self.H = mlb["H"]
+            self.H = sp.csr_matrix(mlb["H"])
             self.c = mlb["c"]
             self.u = mlb["u"]
 
