@@ -43,8 +43,8 @@ xu = sparse(n,1);
 zu = sparse(n,1);
 
 % Set breakpoints
-cl = sparse(3,1);
-for i = 1:3, cl(i) = ceil(i*n/3); end;
+cl = sparse(2,1);
+for i = 1:2, cl(i) = ceil(i*n/2); end;
 
 % Approximately 1/3th of the variables will fall into these categories:
 % 1: inactive, upper finite
@@ -53,16 +53,16 @@ for i = 1:3, cl(i) = ceil(i*n/3); end;
 
 % Generate upper bound data
 xu(1      :cl(1)) = x(1      :cl(1)) + 5*rand(cl(1)     ,1);
-xu(1+cl(1):cl(2)) = x(1+cl(1):cl(2)) + inf;
-xu(1+cl(2):cl(3)) = x(1+cl(2):cl(3));
+xu(1+cl(1):cl(2)) = x(1+cl(1):cl(2));
+%xu(1+cl(2):cl(3)) = x(1+cl(2):cl(3));
 
 % Generate upper bound multipliers
-zu(1     :cl(2)) = 0;
-zu(1+cl(2):cl(3)) = rand(cl(3)-cl(2),1);
+zu(1     :cl(1)) = 0;
+zu(1+cl(1):cl(2)) = rand(cl(2)-cl(1),1);
 
 % Generate c
-c = -H*x  - zu;
-u = xu;
+c = full(-H*x  - zu);
+u = full(xu);
 % Save data
 save(outname,'H','c','u');
 

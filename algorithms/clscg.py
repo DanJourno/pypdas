@@ -24,7 +24,8 @@ class CG:
                 self.b = -bqp.c.ravel()
             else:
                 self.A = bqp.H[[bqp.I],[bqp.I]]
-                self.b = -bqp.c[bqp.I] - bqp.H[ [bqp.I],[bqp.A]]*bqp.u[bqp.A]
+#                self.b = -bqp.c[bqp.I] - bqp.H[ [bqp.I],[bqp.A]]*bqp.u[bqp.A]
+                self.b = -bqp.c[bqp.I] - bqp.H[bqp.I,:][:,bqp.A]*bqp.u[bqp.A]
 
     # Apply CG for some number of iterations
     # clsbqp.fix() should be called before it
@@ -33,6 +34,8 @@ class CG:
         if self.r is None:
             self.r = self.A*self.bqp.x[self.bqp.I] - self.b
             self.p = -self.r.copy()
+        if len(self.b) == 0:
+            return
 
         # Apply CG iteration(s) on clsbqp
         for i in range(rep):

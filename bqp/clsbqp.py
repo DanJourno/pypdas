@@ -22,7 +22,7 @@ class BQP:
         else:
             # Load Matlab data
             mlb = loadmat(filename)
-            self.H = sp.csr_matrix(mlb["H"])
+            self.H = sp.csc_matrix(mlb["H"])
             self.c = mlb["c"]
             self.u = mlb["u"]
 
@@ -134,10 +134,11 @@ class BQP:
 
     # Compute the residual norm
     def kkt_error(self):
+        nr = norm(self.H*self.x + self.z + self.c)
         dx = self.u - self.x
         norm_dx = norm(dx[np.where(dx < 0)])
         norm_dz = norm(self.z[np.where(self.z < 0)])
-        return norm([norm_dx, norm_dz])
+        return norm([norm_dx, norm_dz])+nr
 
     # Compute the objective function value
     def obj(self):

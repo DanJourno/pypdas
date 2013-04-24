@@ -48,7 +48,7 @@ def exactopt(bqp = None, limiter = 1000):
             print key.ljust(10)+':', val
 
 # Apply CG to solve the subproblem, should replicate exactopt
-def cgopt(bqp = None):
+def cgopt(bqp = None,limiter = 1000):
     # Initialize np.information collector
     collector = dict()
     collector['Tcg'] = 0
@@ -62,7 +62,7 @@ def cgopt(bqp = None):
         # Print title
         clscg.print_title()
         # Algorithm loop
-        while True:
+        for i in range(limiter):
             # Subspace minimization with CG iterations
             bqp.fix()
             clscg.applycg(rep = 1000)
@@ -93,7 +93,7 @@ def cgopt(bqp = None):
             print key.ljust(10)+':', val
 
 # Apply inexact method to obtain an exact update
-def exupdate(bqp = None, freq = 1):
+def exupdate(bqp = None, freq = 1, limiter = 1000):
     # Initialize np.information collector
     collector = dict()
     collector['Tcg'] = 0
@@ -107,7 +107,7 @@ def exupdate(bqp = None, freq = 1):
         # Print title
         clscg.print_title()
         # Algorithm loop
-        while True:
+        for i in range(limiter):
             # Fix known variables
             bqp.fix()
 
@@ -160,7 +160,7 @@ def exupdate(bqp = None, freq = 1):
             print key.ljust(10)+':', val
 
 # Apply inexact method to obtain an inexact update
-def inexupdate(bqp = None, freq = 1):
+def inexupdate(bqp = None, freq = 1, limiter = 1000):
     # Initialize np.information collector
     collector = dict()
     collector['Tcg'] = 0
@@ -174,7 +174,7 @@ def inexupdate(bqp = None, freq = 1):
         # Print title
         clscg.print_title()
         # Algorithm loop
-        while True:
+        for i in range(limiter):
             # Fix known variables
             bqp.fix()
 
@@ -182,7 +182,12 @@ def inexupdate(bqp = None, freq = 1):
             # Run CG until a new partition is obtained or r is sufficiently small
             while True:
                 clscg.applycg(rep = freq)
-                tmp1 = spsolve(clscg.A,clscg.r)
+                if len(clscg.r) > 1:
+                    tmp1 = spsolve(clscg.A,clscg.r)
+                elif len(clscg.r) == 1:
+                    tmp1 = clscg.r/clscg.A.data
+                else:
+                    tmp = 0
                 tmp2 = bqp.H[[bqp.A],[bqp.I]]*tmp1
                 tmp = np.concatenate((tmp1,tmp2))[:,np.newaxis]
                 # Violated x

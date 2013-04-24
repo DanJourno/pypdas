@@ -11,7 +11,9 @@ from pypdas.algorithms.clscg import *
 from pypdas.bqp.clsbqp import *
 
 
-a = BQP('randexample/bw30')
+#a = BQP('test')
+a = BQP('randexample/qz9')
+print type(a.H),type(a.c),type(a.u),type(a.A),type(a.I)
 b = copy.copy(a)
 c = copy.copy(a)
 d = copy.copy(a)
