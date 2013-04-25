@@ -46,6 +46,7 @@ def exactopt(bqp = None, limiter = 1000):
         # Print collected np.info
         for key,val in collector.items():
             print key.ljust(10)+':', val
+        return collector    
 
 # Apply CG to solve the subproblem, should replicate exactopt
 def cgopt(bqp = None,limiter = 1000):
@@ -91,12 +92,16 @@ def cgopt(bqp = None,limiter = 1000):
         # Print collected np.info
         for key,val in collector.items():
             print key.ljust(10)+':', val
+        return collector    
 
 # Apply inexact method to obtain an exact update
 def exupdate(bqp = None, freq = 1, limiter = 1000):
     # Initialize np.information collector
     collector = dict()
     collector['Tcg'] = 0
+    # Initialize partition monitor
+    pmonitor = dict()
+    pmonitor['NumChange'] = 1
     if bqp is None:
         print "Empty BQP class."
         pass
@@ -120,6 +125,9 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
 
             # Run CG until r is sufficiently small
             while True:
+                if pmonitor['NumChange'] == 0:
+                    freq = 1000
+                    bqp.k -= 1
                 clscg.applycg(rep = freq)
                 th1 = norm(bqp.u[bqp.I] - bqp.x[bqp.I],-np.inf)
                 th2 = norm(bqp.z[bqp.A],-np.inf)
@@ -145,7 +153,7 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
                 break
                 return
             # New partition
-            bqp.newp()
+            pmonitor['NumChange'] = bqp.newp()
 
             clscg.reset()
 
@@ -158,6 +166,7 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
         # Print collected np.info
         for key,val in collector.items():
             print key.ljust(10)+':', val
+        return collector    
 
 # Apply inexact method to obtain an inexact update
 def inexupdate(bqp = None, freq = 1, limiter = 1000):
@@ -170,6 +179,10 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
     else:
         collector['Time'] = -time.time()
         collector['State'] = bqp.state = 'Suboptimal'
+        # Initialize partition monitor
+        pmonitor = dict()
+        pmonitor['NumChange'] = 1
+
         clscg = CG(bqp)
         # Print title
         clscg.print_title()
@@ -181,6 +194,9 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
 
             # Run CG until a new partition is obtained or r is sufficiently small
             while True:
+                if pmonitor['NumChange'] == 0:
+                    freq = 1000
+
                 clscg.applycg(rep = freq)
                 if len(clscg.r) > 1:
                     tmp1 = spsolve(clscg.A,clscg.r)
@@ -196,7 +212,8 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
                 Vz = np.where((bqp.z < 0) & (bqp.z +tmp<0))[0]
 #                Vz = np.where(bqp.z < 0 & bqp.z +tmp<0)
                 # Identified new A and I
-                if len(np.union1d(Vx,Vz)) >0:
+                pmonitor['NumChange'] = len(Vx) + len(Vz)
+                if pmonitor['NumChange'] > 0:
                     break
 
                 if norm(clscg.r,np.inf) < 1.0e-10:
@@ -228,3 +245,4 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
         # Print collected np.info
         for key,val in collector.items():
             print key.ljust(10)+':', val
+        return collector    

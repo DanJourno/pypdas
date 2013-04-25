@@ -29,7 +29,7 @@ class CG:
 
     # Apply CG for some number of iterations
     # clsbqp.fix() should be called before it
-    def applycg(self, rep = 1, tol = 1e-10):
+    def applycg(self, rep = 1, tol = 1e-16):
         # Initial point
         if self.r is None:
             self.r = self.A*self.bqp.x[self.bqp.I] - self.b

@@ -109,6 +109,8 @@ class BQP:
         # Obtain new A and I
         self.A = np.union1d(Vx, np.setdiff1d(self.A, Vz) )
         self.I = np.union1d(Vz, np.setdiff1d(self.I, Vx) )
+        # Obtain card of changes
+        return len(Vx) + len(Vz)
 
     # Print iteration
     def print_iter(self, k = None):
