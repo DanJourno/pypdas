@@ -118,8 +118,8 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
 
 
             # Check residual's infty norm |r_I|
-#            nmHii = max(sum(abs(bqp.H[ [bqp.I],[bqp.I]]),axis=1))
-#            nmHai = max(sum(abs(bqp.H[ [bqp.A],[bqp.I]]),axis=1))
+#            nmHii = max(np.sum(abs(bqp.H[ [bqp.I],[bqp.I]]),axis=1))
+#            nmHai = max(np.sum(abs(bqp.H[ [bqp.A],[bqp.I]]),axis=1))
             nmHii = norm(bqp.H[ [bqp.I],[bqp.I]].todense(),np.inf)
             nmHai = norm(bqp.H[ [bqp.A],[bqp.I]].todense(),np.inf)
 
@@ -127,7 +127,9 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
             while True:
                 if pmonitor['NumChange'] == 0:
                     freq = 1000
+                    clscg.applycg(rep = freq)
                     bqp.k -= 1
+                    break
                 clscg.applycg(rep = freq)
                 th1 = norm(bqp.u[bqp.I] - bqp.x[bqp.I],-np.inf)
                 th2 = norm(bqp.z[bqp.A],-np.inf)
@@ -194,10 +196,11 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
 
             # Run CG until a new partition is obtained or r is sufficiently small
             while True:
+                clscg.applycg(rep = freq)
                 if pmonitor['NumChange'] == 0:
                     freq = 1000
+                    clscg.applycg(rep = freq)
 
-                clscg.applycg(rep = freq)
                 if len(clscg.r) > 1:
                     tmp1 = spsolve(clscg.A,clscg.r)
                 elif len(clscg.r) == 1:
@@ -216,7 +219,7 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
                 if pmonitor['NumChange'] > 0:
                     break
 
-                if norm(clscg.r,np.inf) < 1.0e-10:
+                if norm(clscg.r,np.inf) < 1.0e-16:
                     break
 
             # Print iteration
