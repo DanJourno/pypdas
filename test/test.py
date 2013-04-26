@@ -12,7 +12,11 @@ from pypdas.bqp.clsbqp import *
 
 
 #a = BQP('test')
+<<<<<<< HEAD
 a = BQP('randexample/qw5')
+=======
+a = BQP('randexample/qw50')
+>>>>>>> 14321b0207e747741b6512220705baec3bf69d87
 print type(a.H),type(a.c),type(a.u),type(a.A),type(a.I)
 b = copy.copy(a)
 c = copy.copy(a)

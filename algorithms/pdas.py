@@ -126,9 +126,13 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
             # Run CG until r is sufficiently small
             while True:
                 if pmonitor['NumChange'] == 0:
+<<<<<<< HEAD
                     clscg.applycg(rep = 1000)
+=======
+                #     clscg.applycg(rep = freq)
+>>>>>>> 14321b0207e747741b6512220705baec3bf69d87
                     bqp.k -= 1
-                    break
+                #     break
                 clscg.applycg(rep = freq)
                 th1 = norm(bqp.u[bqp.I] - bqp.x[bqp.I],-np.inf)
                 th2 = norm(bqp.z[bqp.A],-np.inf)
