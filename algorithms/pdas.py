@@ -126,8 +126,7 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
             # Run CG until r is sufficiently small
             while True:
                 if pmonitor['NumChange'] == 0:
-                    freq = 1000
-                    clscg.applycg(rep = freq)
+                    clscg.applycg(rep = 1000)
                     bqp.k -= 1
                     break
                 clscg.applycg(rep = freq)
@@ -139,7 +138,7 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
                 else:
                     th2 = np.inf
                 the = min(th1,th2)
-                if norm(clscg.r,np.inf) < the:
+                if norm(clscg.r,np.inf) < max(the, 1.0e-16):
                     break
 
             # Print iteration
@@ -197,9 +196,8 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
             # Run CG until a new partition is obtained or r is sufficiently small
             while True:
                 clscg.applycg(rep = freq)
-                if pmonitor['NumChange'] == 0:
-                    freq = 1000
-                    clscg.applycg(rep = freq)
+                # if pmonitor['NumChange'] == 0:
+                #     bqp.k -= 1
 
                 if len(clscg.r) > 1:
                     tmp1 = spsolve(clscg.A,clscg.r)
