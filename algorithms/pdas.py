@@ -120,8 +120,10 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
             # Check residual's infty norm |r_I|
 #            nmHii = max(np.sum(abs(bqp.H[ [bqp.I],[bqp.I]]),axis=1))
 #            nmHai = max(np.sum(abs(bqp.H[ [bqp.A],[bqp.I]]),axis=1))
-            nmHii = norm(bqp.H[ [bqp.I],[bqp.I]].todense(),np.inf)
-            nmHai = norm(bqp.H[ [bqp.A],[bqp.I]].todense(),np.inf)
+            if len(bqp.I) != 0:
+                nmHii = norm(bqp.H[ [bqp.I],[bqp.I]].todense(),np.inf)
+                nmHai = norm(bqp.H[ [bqp.A],[bqp.I]].todense(),np.inf)
+
 
             # Run CG until r is sufficiently small
             while True:
@@ -130,6 +132,8 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
                     bqp.k -= 1
                     break
                 clscg.applycg(rep = freq)
+                if len(bqp.I) == 0:
+                    break
                 th1 = norm(bqp.u[bqp.I] - bqp.x[bqp.I],-np.inf)
                 th2 = norm(bqp.z[bqp.A],-np.inf)
                 th1 /= nmHii
@@ -201,12 +205,19 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
 
                 if len(clscg.r) > 1:
                     tmp1 = spsolve(clscg.A,clscg.r)
+                    if len(bqp.A) !=0:
+                        tmp2 = bqp.H[[bqp.A],[bqp.I]]*tmp1
+                        tmp = np.concatenate((tmp1,tmp2))[:,np.newaxis]
+                    else:
+                        tmp = np.concatenate((tmp1,[]))[:,np.newaxis]
                 elif len(clscg.r) == 1:
                     tmp1 = clscg.r/clscg.A.data
+                    tmp2 = bqp.H[[bqp.A],[bqp.I]]*tmp1
+                    tmp = np.concatenate((tmp1,tmp2))[:,np.newaxis]
                 else:
-                    tmp = 0
-                tmp2 = bqp.H[[bqp.A],[bqp.I]]*tmp1
-                tmp = np.concatenate((tmp1,tmp2))[:,np.newaxis]
+                    tmp = np.zeros((bqp.n,1))
+                
+
                 # Violated x
                 Vx = np.where((bqp.u - bqp.x < 0) & (bqp.u-bqp.x + tmp <0))[0]
                 # Violated z

@@ -31,16 +31,24 @@ class CG:
     # clsbqp.fix() should be called before it
     def applycg(self, rep = 1, tol = 1e-16):
         # Initial point
+        if len(self.b) == self.bqp.n:
+            self.b = self.b[:,np.newaxis]
         if self.r is None:
             self.r = self.A*self.bqp.x[self.bqp.I] - self.b
             self.p = -self.r.copy()
         if len(self.b) == 0:
+            self.bqp.z[self.bqp.A] = -self.bqp.H[self.bqp.A,:]*self.bqp.x - self.bqp.c[self.bqp.A]
             return
+
+        if norm(self.r,np.inf) < tol:
+            return
+
 
         # Apply CG iteration(s) on clsbqp
         for i in range(rep):
             Ap = self.A*self.p
             alfa = np.dot(self.r.T,self.r)[0,0]/np.dot(self.p.T, Ap)[0,0]
+ 
             self.bqp.x[self.bqp.I] += alfa*self.p
             r1 = self.r + alfa*Ap
             beta = np.dot(r1.T,r1)[0,0]/np.dot(self.r.T,self.r)[0,0]
@@ -65,7 +73,12 @@ class CG:
         else:
             count = self.k
 
-        print '{0:3d} {1:4d} {2:4d}   {3:+.3e}  {4:.3e}    {5:4d}     {6:.3e}'.format(self.bqp.k,len(self.bqp.A),self.bqp.n-len(self.bqp.A),self.bqp.obj(),float(self.bqp.kkt_error()),count,norm(self.r,np.inf) )
+        if len(self.r) > 0:
+            normr = norm(self.r,np.inf)
+        else:
+            normr = 0.0
+
+        print '{0:3d} {1:4d} {2:4d}   {3:+.3e}  {4:.3e}    {5:4d}     {6:.3e}'.format(self.bqp.k,len(self.bqp.A),self.bqp.n-len(self.bqp.A),self.bqp.obj(),float(self.bqp.kkt_error()),count,normr )
 
     # Print title
     def print_title(self,rep = None):
