@@ -67,7 +67,7 @@ class CG:
         self.__init__(self.bqp)
 
     # Print iteration
-    def print_iter(self, k = None):
+    def print_iter(self, k = None, rt = None):
         if k is not None:
             count = k
         else:
@@ -78,12 +78,14 @@ class CG:
         else:
             normr = 0.0
 
-        print '{0:3d} {1:4d} {2:4d}   {3:+.3e}  {4:.3e}    {5:4d}     {6:.3e}'.format(self.bqp.k,len(self.bqp.A),self.bqp.n-len(self.bqp.A),self.bqp.obj(),float(self.bqp.kkt_error()),count,normr )
+        if rt is None:
+            rt = 0.0
+        print '{0:3d} {1:4d} {2:4d}   {3:+.3e}  {4:.3e}    {5:4d}     {6:.3e}    {7:.2e}'.format(self.bqp.k,len(self.bqp.A),self.bqp.n-len(self.bqp.A),self.bqp.obj(),float(self.bqp.kkt_error()),count,normr, rt)
 
     # Print title
     def print_title(self,rep = None):
         if rep is None:
-            rep = 60
+            rep = 75
         print '='*rep
-        print 'Iter |A|   |I|     obj        res       CG-iter    CG-res'
+        print 'Iter |A|   |I|     obj        res       CG-iter    CG-res     res-ratio'
         print '='*rep

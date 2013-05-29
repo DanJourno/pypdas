@@ -67,7 +67,6 @@ def cgopt(bqp = None,limiter = 1000):
             # Subspace minimization with CG iterations
             bqp.fix()
             clscg.applycg(rep = 1000)
-
             # Print iteration
             clscg.print_iter()
             # Increase counter
@@ -87,7 +86,7 @@ def cgopt(bqp = None,limiter = 1000):
 
         collector['State'] = bqp.state
         # Print endline
-        bqp.print_line()
+        bqp.print_line(rep=75)
 
         # Print collected np.info
         for key,val in collector.items():
@@ -124,15 +123,21 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
                 nmHii = norm(bqp.H[ [bqp.I],[bqp.I]].todense(),np.inf)
                 nmHai = norm(bqp.H[ [bqp.A],[bqp.I]].todense(),np.inf)
 
-
+    
             # Run CG until r is sufficiently small
             while True:
                 if pmonitor['NumChange'] == 0:
                     clscg.applycg(rep = 1000)
                     bqp.k -= 1
+                    ratio = norm(clscg.r, np.inf)/r0
                     break
                 clscg.applycg(rep = freq)
+                # Record initial residual
+                if i == 0:
+                    r0 = norm(clscg.r, np.inf)
+
                 if len(bqp.I) == 0:
+                    ratio = 0
                     break
                 th1 = norm(bqp.u[bqp.I] - bqp.x[bqp.I],-np.inf)
                 th2 = norm(bqp.z[bqp.A],-np.inf)
@@ -143,10 +148,11 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
                     th2 = np.inf
                 the = min(th1,th2)
                 if norm(clscg.r,np.inf) < max(the, 1.0e-16):
+                    ratio = norm(clscg.r, np.inf)/r0
                     break
 
             # Print iteration
-            clscg.print_iter()
+            clscg.print_iter(rt=ratio)
 
                 
             # Increase counter
@@ -166,7 +172,7 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
         collector['Iter'] = bqp.k
         collector['State'] = bqp.state
         # Print endline
-        bqp.print_line()
+        bqp.print_line(rep=75)
 
         # Print collected np.info
         for key,val in collector.items():
@@ -203,6 +209,10 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
                 # if pmonitor['NumChange'] == 0:
                 #     bqp.k -= 1
 
+                # Record initial residual
+                if i == 0:
+                    r0 = norm(clscg.r, np.inf)
+
                 if len(clscg.r) > 1:
                     tmp1 = spsolve(clscg.A,clscg.r)
                     if len(bqp.A) !=0:
@@ -226,13 +236,15 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
                 # Identified new A and I
                 pmonitor['NumChange'] = len(Vx) + len(Vz)
                 if pmonitor['NumChange'] > 0:
+                    ratio = norm(clscg.r, np.inf)/r0
                     break
 
                 if norm(clscg.r,np.inf) < 1.0e-16:
+                    ratio = norm(clscg.r, np.inf)/r0
                     break
 
             # Print iteration
-            clscg.print_iter()
+            clscg.print_iter(rt=ratio)
             bqp.A = np.union1d(Vx, np.setdiff1d(bqp.A, Vz) )
             bqp.I = np.union1d(Vz, np.setdiff1d(bqp.I, Vx) )
 
