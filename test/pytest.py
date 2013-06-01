@@ -7,7 +7,7 @@ from pypdas.algorithms import pdas
 from copy import copy
 
 # Generate a matlab data file containing a BQP with size=10, sparsity=0.5, cond=100 and with name 'test.mat'
-sprandsym(10,0.5,0.01,1,'test')
+sprandsym(50,0.5,0.01,1,'test')
 a = BQP('test')
 b = copy(a); c = copy(a)
 

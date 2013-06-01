@@ -45,20 +45,20 @@ fa.close()
 print "---Test cgopt():---"
 cb = cgopt(b)
 fb = io.open(ouputname+'.cgop','wb')
-sb = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}  {6}'.format(rept,size,cond,int(cb['Iter']),int(cb['Tcg']),float(cb['Time']),cb['State'].rjust(6))
+sb = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}   {6:.4e}  {7}'.format(rept,size,cond,int(cb['Iter']),int(cb['Tcg']),float(cb['Time']),float(cb['ResRatio']),cb['State'].rjust(6))
 fb.write(sb+'\n')
 fb.close()
 
 print "---Test exupdate():---"
 cc = exupdate(c)
 fc = io.open(ouputname+'.exup','wb')
-sc = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}  {6}'.format(rept,size,cond,int(cc['Iter']),int(cc['Tcg']),float(cc['Time']),cc['State'].rjust(6))
+sc = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}   {6:.4e}  {7}'.format(rept,size,cond,int(cc['Iter']),int(cc['Tcg']),float(cc['Time']),float(cc['ResRatio']),cc['State'].rjust(6))
 fc.write(sc+'\n')
 fc.close()
 
 print "---Test inexupdate():---"
 cd = inexupdate(d)
 fd = io.open(ouputname+'.ineup','wb')
-sd = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}  {6}'.format(rept,size,cond,int(cd['Iter']),int(cd['Tcg']),float(cd['Time']),cd['State'].rjust(6))
+sd = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}   {6:.4e}  {7}'.format(rept,size,cond,int(cd['Iter']),int(cd['Tcg']),float(cd['Time']),float(cd['ResRatio']),cd['State'].rjust(6))
 fd.write(sd+'\n')
 fd.close()
