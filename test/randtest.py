@@ -27,6 +27,7 @@ a = BQP(inputname)
 b = copy.copy(a)
 c = copy.copy(a)
 d = copy.copy(a)
+e = copy.copy(a)
 
 size = dic[size]
 if size == 1e+4:
@@ -62,3 +63,10 @@ fd = io.open(ouputname+'.ineup','wb')
 sd = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}   {6:.4e}  {7}'.format(rept,size,cond,int(cd['Iter']),int(cd['Tcg']),float(cd['Time']),float(cd['ResRatio']),cd['State'].rjust(6))
 fd.write(sd+'\n')
 fd.close()
+
+print "---Test inexupdate2():---"
+ce = inexupdate2(e)
+fe = io.open(ouputname+'.ineup2','wb')
+se = '{0:3d}  {1:.1e}  {2:.1e}  {3:4d}  {4:5d}  {5:.4e}   {6:.4e}  {7}'.format(rept,size,cond,int(ce['Iter']),int(ce['Tcg']),float(ce['Time']),float(ce['ResRatio']),ce['State'].rjust(6))
+fe.write(se+'\n')
+fe.close()

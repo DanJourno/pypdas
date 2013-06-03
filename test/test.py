@@ -20,6 +20,7 @@ print type(a.H),type(a.c),type(a.u),type(a.A),type(a.I)
 b = copy.copy(a)
 c = copy.copy(a)
 d = copy.copy(a)
+e = copy.copy(a)
 print "---Test exactopt():---"
 exactopt(a,limiter=10)
 print "---Test cgopt():---"
@@ -29,5 +30,7 @@ print "---Test exupdate():---"
 #import pdb; pdb.set_trace()
 exupdate(c,limiter=10)
 print "---Test inexupdate():---"
-
 inexupdate(d,limiter=10)
+print "---Test inexupdate2():---"
+inexupdate2(e,limiter=10)
+

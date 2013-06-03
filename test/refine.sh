@@ -46,3 +46,15 @@ cat randresults/qz*.out.ineup > q-ineup-z
 cat randresults/wb*.out.ineup > w-ineup-b
 cat randresults/ww*.out.ineup > w-ineup-w
 cat randresults/wz*.out.ineup > w-ineup-z
+
+cat randresults/bb*.out.ineup2 > b-ineup2-b
+cat randresults/bw*.out.ineup2 > b-ineup2-w
+cat randresults/bz*.out.ineup2 > b-ineup2-z
+
+cat randresults/qb*.out.ineup2 > q-ineup2-b
+cat randresults/qw*.out.ineup2 > q-ineup2-w
+cat randresults/qz*.out.ineup2 > q-ineup2-z
+
+cat randresults/wb*.out.ineup2 > w-ineup2-b
+cat randresults/ww*.out.ineup2 > w-ineup2-w
+cat randresults/wz*.out.ineup2 > w-ineup2-z

@@ -305,3 +305,123 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
         for key,val in collector.items():
             print key.ljust(10)+':', val
         return collector    
+
+
+# Apply inexact method to obtain an inexact update by bounding on inv(Hii)
+def inexupdate2(bqp = None, freq = 1, limiter = 1000):
+    # Initialize np.information collector
+    collector = dict()
+    collector['Tcg'] = 0
+    if bqp is None:
+        print "Empty BQP class."
+        pass
+    else:
+        collector['Time'] = -time.time()
+        collector['State'] = bqp.state = 'Suboptimal'
+        collector['ResRatio'] = 0.0
+        # Initialize partition monitor
+        pmonitor = dict()
+        pmonitor['NumChange'] = 1
+
+        clscg = CG(bqp)
+        # Print title
+        clscg.print_title()
+        # Algorithm loop
+        for i in range(limiter):
+            # Fix known variables
+            bqp.fix()
+
+            # Check if I is empty
+            clscg.applycg(rep = 0)
+            if len(clscg.r) == 0:
+                ratio = 0.0
+                clscg.applycg(rep = 0)
+            else: # I is not empty
+                # Initial residual norm
+                r0 = norm(clscg.r.ravel(), np.inf)
+                # Bound on the norm of inv(Hii)
+                B = norm(np.linalg.inv(clscg.A.todense()),np.inf)
+
+                # Run CG until a new partition is obtained or r is sufficiently small
+                while True:
+                    # Run rep CG steps
+                    clscg.applycg(rep = freq)
+                    # Bound on the pertubation
+                    pIL = B*np.min(clscg.r)
+                    pIU = B*np.max(clscg.r)
+
+                    # Obtain lower and upper bound on xI
+                    xIL = copy.copy(bqp.x)
+                    xIU = copy.copy(bqp.x)
+                    xIL[bqp.I] -= pIU
+                    xIU[bqp.I] -= pIL
+                    assert all(xIL <= xIU), 'xIL should <= xIU'
+                    # Obtain lower and upper bound on zA
+                    if len(bqp.A) > 0:
+                        zAU = copy.copy(bqp.z)
+                        pAU = -pIL*np.dot((np.sign(-bqp.H[bqp.A,:][:,bqp.I].todense())),np.ones(len(bqp.I)))
+                        zAU[bqp.A] += np.array(pAU).ravel()[:,np.newaxis]
+                    else:
+                        zAU = bqp.z
+                
+                    # Violated x
+                    Vx = np.where(bqp.u - xIL <0)[0]
+                    #assert set(Vx).issubset(set(np.where(bqp.u-bqp.x<0)[0])), 'subset Vx'
+
+                    # Violated z
+                    Vz = np.where(zAU < 0)[0]
+                    #assert set(Vz).issubset(set(np.where(bqp.z<0)[0])),'subset Vz'
+
+                    pmonitor['NumChange'] = len(Vx) + len(Vz)
+
+                    if pmonitor['NumChange'] > 0:
+                        if len(clscg.r) > 0 and r0 > 0:
+                            ratio = norm(clscg.r.ravel(), np.inf)/r0
+                        else:
+                            ratio = 0.0
+                        break
+                        
+                    # Check if optimality is reached
+                    if norm(clscg.r.ravel(),np.inf) < 1.0e-16:
+                        if len(clscg.r) > 0 and r0 > 0:
+                            ratio = norm(clscg.r.ravel(), np.inf)/r0
+                        else:
+                            ratio = 0.0
+                        break
+
+                    
+            # Print iteration
+            clscg.print_iter(rt=ratio)
+            if len(clscg.r) == 0:
+                #import pdb;pdb.set_trace()
+                bqp.newp()
+
+            collector['ResRatio'] += ratio
+            # Update partition
+            try:
+                bqp.A = np.union1d(Vx, np.setdiff1d(bqp.A, Vz) )
+                bqp.I = np.union1d(Vz, np.setdiff1d(bqp.I, Vx) )
+            except NameError:
+                pass
+            # Increase counter
+            bqp.k += 1
+            collector['Tcg'] += clscg.k
+            # Check optimality
+            if bqp.kkt_error() < 1e-12:
+                bqp.state = 'Optimal'
+                break
+                return
+
+            clscg.reset()
+
+        collector['Time'] += time.time()
+        collector['Iter'] = bqp.k
+        collector['State'] = bqp.state
+        collector['ResRatio'] /= collector['Iter']
+        # Print endline
+        bqp.print_line(75)
+
+        # Print collected np.info
+        for key,val in collector.items():
+            print key.ljust(10)+':', val
+        return collector    
