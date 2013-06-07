@@ -8,6 +8,7 @@ import time
 import numpy as np
 from numpy.linalg import norm
 from scipy.sparse.linalg import cg,spsolve
+from scipy.sparse import identity
 import copy
 
 def exactopt(bqp = None, limiter = 1000):
@@ -36,7 +37,11 @@ def exactopt(bqp = None, limiter = 1000):
                 break
                 return
             # New partition
-            bqp.newp()
+            NumChange = bqp.newp()
+            if NumChange == 0:
+                bqp.state = 'Optimal'
+                break
+                return
 
         collector['Time'] += time.time()
         collector['Iter'] = bqp.k
@@ -308,7 +313,7 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
 
 
 # Apply inexact method to obtain an inexact update by bounding on inv(Hii)
-def inexupdate2(bqp = None, freq = 1, limiter = 1000):
+def inexupdate2(bqp = None, freq = 1, limiter = 1000, compB = True):
     # Initialize np.information collector
     collector = dict()
     collector['Tcg'] = 0
@@ -340,8 +345,16 @@ def inexupdate2(bqp = None, freq = 1, limiter = 1000):
                 # Initial residual norm
                 r0 = norm(clscg.r.ravel(), np.inf)
                 # Bound on the norm of inv(Hii)
-                B = norm(np.linalg.inv(clscg.A.todense()),np.inf)
-
+                if compB:
+                    B = norm(np.linalg.inv(clscg.A.todense()),1)
+                else:
+                    # Caveat: sum is using the built-in function of Sage
+                    #s = np.max(sum(np.abs(clscg.A)))[0,0]
+                    s = norm(bqp.H.todense(), 1)+1
+                    B = 1/( s - norm((s*identity(len(clscg.r)) - clscg.A).todense(), 1) )
+                    # while B <= 0:
+                    #     s *= 1.05
+                    #     B = 1/( s - norm((s*identity(len(clscg.r)) - clscg.A).todense(), np.inf) )
                 # Run CG until a new partition is obtained or r is sufficiently small
                 while True:
                     # Run rep CG steps
@@ -349,7 +362,8 @@ def inexupdate2(bqp = None, freq = 1, limiter = 1000):
                     # Bound on the pertubation
                     pIL = B*np.min(clscg.r)
                     pIU = B*np.max(clscg.r)
-
+                    if pIL > pIU:
+                         import pdb; pdb.set_trace()
                     # Obtain lower and upper bound on xI
                     xIL = copy.copy(bqp.x)
                     xIU = copy.copy(bqp.x)

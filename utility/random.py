@@ -16,7 +16,7 @@ def sprandsym(n,den,rc,mtype = 1,dataname = 'tmp'):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 5:
-        mtype = 1
+        mtype = 2
     else:
         mtype = sys.argv[4]
     if len(sys.argv) < 6:
