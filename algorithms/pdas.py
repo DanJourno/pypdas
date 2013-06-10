@@ -142,7 +142,7 @@ def exupdate(bqp = None, freq = 1, limiter = 1000):
 #            nmHii = max(np.sum(abs(bqp.H[ [bqp.I],[bqp.I]]),axis=1))
 #            nmHai = max(np.sum(abs(bqp.H[ [bqp.A],[bqp.I]]),axis=1))
             if len(bqp.I) != 0:
-                nmHii = norm(bqp.H[ [bqp.I],[bqp.I]].todense(),np.inf)
+                nmHii = norm(np.linalg.inv(bqp.H[ [bqp.I],[bqp.I]].todense()),np.inf)
                 nmHai = norm(bqp.H[ [bqp.A],[bqp.I]].todense(),np.inf)
 
     
@@ -273,6 +273,10 @@ def inexupdate(bqp = None, freq = 1, limiter = 1000):
                     else:
                         ratio = 0.0
                     break
+                elif pmonitor['NumChange'] == 0:
+                    clscg.applycg(rep = 1000)
+                    ratio = norm(clscg.r.ravel(), np.inf)/r0
+                    break
 
                 if norm(clscg.r.ravel(),np.inf) < 1.0e-16:
                     if len(clscg.r) > 0 and r0 > 0:
@@ -348,13 +352,10 @@ def inexupdate2(bqp = None, freq = 1, limiter = 1000, compB = True):
                 if compB:
                     B = norm(np.linalg.inv(clscg.A.todense()),1)
                 else:
-                    # Caveat: sum is using the built-in function of Sage
-                    #s = np.max(sum(np.abs(clscg.A)))[0,0]
-                    s = norm(bqp.H.todense(), 1)+1
-                    B = 1/( s - norm((s*identity(len(clscg.r)) - clscg.A).todense(), 1) )
-                    # while B <= 0:
-                    #     s *= 1.05
-                    #     B = 1/( s - norm((s*identity(len(clscg.r)) - clscg.A).todense(), np.inf) )
+                    s = norm(bqp.H.todense(), np.inf)+1
+                    B = np.sqrt(len(clscg.r))/( s - norm((s*identity(len(clscg.r)) - clscg.A).todense(), np.inf)/np.sqrt(len(clscg.r)) )
+                    assert B > 0, "B should > 0"
+
                 # Run CG until a new partition is obtained or r is sufficiently small
                 while True:
                     # Run rep CG steps
@@ -362,14 +363,13 @@ def inexupdate2(bqp = None, freq = 1, limiter = 1000, compB = True):
                     # Bound on the pertubation
                     pIL = B*np.min(clscg.r)
                     pIU = B*np.max(clscg.r)
-                    if pIL > pIU:
-                         import pdb; pdb.set_trace()
+                    assert pIL <= pIU, 'pIL should <= pIU'
                     # Obtain lower and upper bound on xI
                     xIL = copy.copy(bqp.x)
                     xIU = copy.copy(bqp.x)
                     xIL[bqp.I] -= pIU
                     xIU[bqp.I] -= pIL
-                    assert all(xIL <= xIU), 'xIL should <= xIU'
+
                     # Obtain lower and upper bound on zA
                     if len(bqp.A) > 0:
                         zAU = copy.copy(bqp.z)
